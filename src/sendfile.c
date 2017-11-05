@@ -4,19 +4,13 @@
 #include <unistd.h>
 
 #include <arpa/inet.h>
-
-#include <fcntl.h>
-#include <sys/sendfile.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+
+#include "transfer_functions.h"
 
 int main(int argc, char *argv[]) {
   int server;
-  int read_fd;
   struct sockaddr_in server_addr;
-  struct stat stat_buf;
-  off_t offset = 0;
   char *file_path;
   int opt;
 
@@ -54,11 +48,8 @@ int main(int argc, char *argv[]) {
   }
   puts("Connected. Sending file...");
 
-  read_fd = open(file_path, O_RDONLY);
-  fstat(read_fd, &stat_buf);
-  sendfile(server, read_fd, &offset, stat_buf.st_size);
+  send_file(server, file_path);
 
   close(server);
-  close(read_fd);
   return 0;
 }

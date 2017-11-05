@@ -8,24 +8,20 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "transfer_functions.h"
+
 #define BACKLOG 3
-#define BUFSZ 1024
 
 int main(int argc, char *argv[]) {
   int server;
   int client;
-  int write_fd;
   int c;
-  int read_size;
   struct sockaddr_in server_addr;
   struct sockaddr_in client_addr;
-  mode_t mode = 0644;
-  char buffer[BUFSZ];
   char *file_path;
   int opt;
 
@@ -65,18 +61,10 @@ int main(int argc, char *argv[]) {
   }
   puts("Connection accepted. Writing incoming file.");
 
-  write_fd = open(file_path, O_WRONLY | O_CREAT, mode);
-  while ((read_size = recv(client, buffer, BUFSZ, 0)) > 0) {
-    write(write_fd, buffer, read_size);
-  }
-  if (read_size == 0) {
-    puts("Receive succesfoul.");
-    fsync(write_fd);
-  } else if (read_size < 0) {
-    perror("Receive of file failed. Error");
-  }
+  recv_file(client, file_path);
+
+  close(client);
   close(server);
-  close(write_fd);
 
   return 0;
 }
