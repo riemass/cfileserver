@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "transfer_functions.h"
+#include "request_type.h"
 
 #define BACKLOG 3
 
@@ -22,14 +23,9 @@ int main(int argc, char *argv[]) {
   int c;
   struct sockaddr_in server_addr;
   struct sockaddr_in client_addr;
-  char *file_path;
   int opt;
-
-  if (argc < 2) {
-    puts("Usage:\n\trecvfile [-s socket] path");
-    exit(1);
-  }
-  file_path = argv[argc - 1];
+  char buffer[80];
+  struct request req;
 
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
@@ -51,8 +47,6 @@ int main(int argc, char *argv[]) {
   }
   listen(server, BACKLOG);
 
-  puts("Waiting for incoming file...");
-
   c = sizeof(struct sockaddr_in);
   while (client = accept(server, (struct sockaddr *)&client_addr, (socklen_t *)&c)) {
   if (client < 0) {
@@ -61,7 +55,13 @@ int main(int argc, char *argv[]) {
   }
   puts("Connection accepted. Writing incoming file.");
 
-  recv_file(client, file_path);
+  read_request(client, buffer);
+  parse_request(buffer, &req);
+  if (req.type == PUT) {
+    recv_file(client, req.file_path);
+  } else if (req.type == GET) {
+    send_file(client, req.file_path);
+  }
 
   close(client);
   }

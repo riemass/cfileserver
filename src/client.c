@@ -11,7 +11,6 @@
 int main(int argc, char *argv[]) {
   int server;
   struct sockaddr_in server_addr;
-  char *file_path;
   int opt;
   struct request req;
   size_t bufsize = 80;
