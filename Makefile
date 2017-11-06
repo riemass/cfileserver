@@ -1,5 +1,5 @@
 OBJDIR := obj
-OBJS := $(addprefix $(OBJDIR)/,transfer_functions.o)
+OBJS := $(addprefix $(OBJDIR)/,transfer_functions.o init.o)
 SERV_OBJS := $(addprefix $(OBJDIR)/,server.o)
 CL_OBJS := $(addprefix $(OBJDIR)/,client.o)
 

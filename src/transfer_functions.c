@@ -28,7 +28,7 @@ int recv_file(int socket, const char* file_path) {
   mode_t mode = 0644;
   char buffer[BUFSZ];
 
-  write_fd = open(file_path, O_WRONLY | O_CREAT, mode);
+  write_fd = open(file_path, O_WRONLY | O_CREAT | O_TRUNC, mode);
   while ((read_size = recv(socket, buffer, BUFSZ, 0)) > 0) {
     write(write_fd, buffer, read_size);
   }
