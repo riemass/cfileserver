@@ -1,7 +1,7 @@
-OBJDIR := 'build'
+OBJDIR := obj
 OBJS := $(addprefix $(OBJDIR)/,transfer_functions.o)
-SERV_OBJS := $(addprefix $(OBJDIR)/,sendfile.o)
-CL_OBJS := $(addprefix $(OBJDIR)/,recvfile.o)
+SERV_OBJS := $(addprefix $(OBJDIR)/,server.o)
+CL_OBJS := $(addprefix $(OBJDIR)/,client.o)
 
 vpath %.c src
 $(OBJDIR)/%.o : %.c
@@ -16,4 +16,4 @@ client: $(OBJS) $(CL_OBJS)
 all: server client
 
 clean:
-	rm -rf $(OBJDIR) server client
+	rm $(OBJDIR)/* server client

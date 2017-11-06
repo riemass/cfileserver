@@ -1,10 +1,10 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/sendfile.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/socket.h>
 
 #include "transfer_functions.h"
 
@@ -33,5 +33,34 @@ int recv_file(int socket, const char* file_path) {
     write(write_fd, buffer, read_size);
   }
   if (read_size == 0) fsync(write_fd);
+  close(write_fd);
   return read_size;
+}
+
+int read_request(int socket, char* buffer) {
+  char* ptr = buffer;
+  int bytesReceived;
+  while ((bytesReceived = recv(socket, ptr, 1, 0)) > 0) {
+    if (*ptr++ == '\n') break;
+  }
+  *(--ptr) = '\0';
+  return ptr - buffer;
+}
+
+int parse_request(char* buffer, struct request* request) {
+  char* token;
+  token = strtok(buffer, " \t\n");
+  if (token == NULL)
+    return request->type = INVALID;
+  if (0 == strcmp(token, "put"))
+    request->type = PUT;
+  else if (0 == strcmp(token, "get"))
+    request->type = GET;
+  else 
+    return request->type = INVALID;
+  token = strtok(NULL, " \t\n");
+  if (token == NULL) 
+    return request->type = INVALID;
+  request->file_path = token;
+  return 0;
 }
